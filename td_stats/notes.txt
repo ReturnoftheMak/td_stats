@@ -1,0 +1,23 @@
+TD Stats day?
+
+Release a new dashboard/stat on every Tuesday during the season
+
+One table will be all the innings by batsmen
+bowling figures by innings
+extras on batting card
+extras on bowling card
+partnerships
+
+Currently we'll only look at our own players, might need a rethink when looking at every match
+
+
+Is this player a keeper or captain? Done
+Which club was this innings for? Done
+
+Ground name not quite working - Done
+
+Need better date formatting
+Some matches over multiple days take first? Done
+
+What if we only scrape to get soup?
+Should speed the whole thing up hopefully
