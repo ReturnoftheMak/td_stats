@@ -21,3 +21,9 @@ Some matches over multiple days take first? Done
 
 What if we only scrape to get soup?
 Should speed the whole thing up hopefully
+
+Html stored in a json - can load into dict, update, then dump back to json
+load, get keys, scrape latest year and add any match urls/html not already in there
+
+We're missing some runs and matches, need to figure out if this is a formatting issue or if the html didn't load in
+
