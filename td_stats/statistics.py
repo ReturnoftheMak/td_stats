@@ -5,9 +5,9 @@ import pandas as pd
 
 # %% Get the dfs loaded
 
-df_bat_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\batting_all.csv')
-df_bowl_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\bowling_all.csv')
-df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\match_info_all.csv')
+df_bat_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\batting_all.csv')
+df_bowl_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\bowling_all.csv')
+df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\match_info_all.csv')
 
 
 # %% Formatting the date column

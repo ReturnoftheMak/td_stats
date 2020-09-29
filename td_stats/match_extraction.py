@@ -1,6 +1,7 @@
 
 # %% Package Imports
 
+import glob
 import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
@@ -462,8 +463,24 @@ def get_match_data(soup_dict):
 
 # %%
 
-df_bat_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\batting_all.csv')
-df_bowl_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\bowling_all.csv')
-df_match_info_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\match_info_all.csv')
+df_bat_20.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\batting_20.csv')
+df_bowl_20.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\bowling_20.csv')
+df_match_info_20.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\match_info_20.csv')
+
+# %% Create new combined csvs
+
+def consolidate_csvs(directory=r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data'):
+    """
+    """
+
+    batting_all = pd.concat([pd.read_csv(file) for file in glob.glob(directory+r'\batting*.csv')])
+    bowling_all = pd.concat([pd.read_csv(file) for file in glob.glob(directory+r'\bowling*.csv')])
+    match_info_all = pd.concat([pd.read_csv(file) for file in glob.glob(directory+r'\match_info*.csv')])
+
+    batting_all.to_csv(directory + r'\consolidated_files\batting_all.csv')
+    bowling_all.to_csv(directory + r'\consolidated_files\bowling_all.csv')
+    match_info_all.to_csv(directory + r'\consolidated_files\match_info_all.csv')
+
+    pass
 
 # %%

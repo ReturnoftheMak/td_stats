@@ -26,4 +26,13 @@ Html stored in a json - can load into dict, update, then dump back to json
 load, get keys, scrape latest year and add any match urls/html not already in there
 
 We're missing some runs and matches, need to figure out if this is a formatting issue or if the html didn't load in
+Found em, was abandoned matches, forgot to add provision for that
+
+Want to get down to a single run for adding new matches, should go like this:
+- get new matches creates a new html dict and updates the old one for storage
+- pass this to soup dict function
+- then pass to get match data and get the dataframes
+- append these to the csv for that given year
+- recreate the combined view from the separate csvs
+
 

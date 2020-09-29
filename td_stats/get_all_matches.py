@@ -1,6 +1,7 @@
 
 #%% Package Imports
 
+import json
 from bs4 import BeautifulSoup
 from splinter import Browser
 
@@ -151,6 +152,7 @@ def innings_url(match_url, driver):
 def get_html(match_urls, driver):
     """
     """
+
     html_dict = {}
     for url in match_urls:
         driver.visit(url)
@@ -159,8 +161,6 @@ def get_html(match_urls, driver):
     return html_dict
 
 # %% HTML dict saved down to a json
-
-import json
 
 # Save down the html
 def save_html(html_dict, filepath):
@@ -184,6 +184,31 @@ def get_soup_from_html(html_dict):
         soup_dict[key] = BeautifulSoup(value, 'html.parser')
     
     return soup_dict
+
+
+# %% Get the current season page to start with, then all the match urls
+# Can then check if there are any new, pass this to a new_html_dict and update the html json
+# I'd prefer to keep anything post 2020 separate
+
+def get_new_matches(current_season_id, base_url, driver):
+    """
+    """
+
+    season_page = r'https://thamesditton.play-cricket.com/Matches?tab=Result&selected_season_id='+ str(current_season_id) +r'&view_by=year'
+    page_urls = get_page_urls(base_url, season_page, driver)
+    season_match_urls = []
+    for page_url in page_urls:
+        season_match_urls += (get_match_urls(base_url, page_url, driver))
+
+    data = load_html(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\html_new.json')
+    loaded_match_urls = list(data.keys())
+
+    new_match_urls = [match for match in season_match_urls if match not in loaded_match_urls]
+
+    new_html_dict = get_html(new_match_urls,driver)
+    data.update(new_html_dict)
+
+    return new_html_dict
 
 
 # %%
