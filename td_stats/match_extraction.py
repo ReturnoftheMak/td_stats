@@ -462,6 +462,8 @@ def get_match_data(soup_dict):
 
 # %%
 
-df_bat_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\td_stats\data\batting_all.csv')
-df_bowl_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\td_stats\data\bowling_all.csv')
-df_match_info_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\td_stats\data\match_info_all.csv')
+df_bat_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\batting_all.csv')
+df_bowl_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\bowling_all.csv')
+df_match_info_combined.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\match_info_all.csv')
+
+# %%
