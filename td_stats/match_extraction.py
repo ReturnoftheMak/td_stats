@@ -137,22 +137,7 @@ def extract_batting_innings(match_url, soup):
     """
 
     tables = soup.findAll('table', class_='table standm table-hover')
-    # 2 or 4 innings
-    if len(tables) == 2:
-        batting_innings_1 = tables[0]
-        batting_innings_2 = tables[1]
-        innings_list = [batting_innings_1, batting_innings_2]
-    elif len(tables) == 4:
-        batting_innings_1 = tables[0]
-        batting_innings_2 = tables[1]
-        batting_innings_3 = tables[2]
-        batting_innings_4 = tables[3]
-        innings_list = [batting_innings_1, batting_innings_2,
-                        batting_innings_3, batting_innings_4]
-    else:
-        pass
-        innings_list = []
-    # Need the logic for imcomplete games??
+    innings_list = [table for table in tables]
 
     innings_names = soup.findAll('ul', class_='nav nav-tabs nav-justified subnav-2')
     if len(innings_names) > 0:
@@ -312,22 +297,7 @@ def extract_bowling_innings(match_url, soup):
     """
 
     tables = soup.findAll('table', class_='table bowler-detail table-hover')
-    # 2 or 4 innings
-    if len(tables) == 2:
-        bowling_innings_1 = tables[0]
-        bowling_innings_2 = tables[1]
-        innings_list = [bowling_innings_1, bowling_innings_2]
-    elif len(tables) == 4:
-        bowling_innings_1 = tables[0]
-        bowling_innings_2 = tables[1]
-        bowling_innings_3 = tables[2]
-        bowling_innings_4 = tables[3]
-        innings_list = [bowling_innings_1, bowling_innings_2,
-                        bowling_innings_3, bowling_innings_4]
-    else:
-        pass
-        innings_list = []
-    # Need the logic for imcomplete games??
+    innings_list = [table for table in tables]
 
     innings_names = soup.findAll('ul', class_='nav nav-tabs nav-justified subnav-2')
     if len(innings_names) > 0:
@@ -431,11 +401,9 @@ def get_row_to_dict_bowl(row, match_url, i):
 
 # %% Work on this later
 
-def extras_total_extraction(match_url, driver):
+def extras_total_extraction(match_url, soup):
     """
     """
-
-    soup = get_page_soup(match_url, driver)
 
     extras_total = soup.findAll('div', class_='alert alert-info alert-info-1 rounded d-inline-block')
 
