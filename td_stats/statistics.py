@@ -12,7 +12,7 @@ df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\tha
 
 # %% Formatting the date column
 
-def match_info_formatting(df_match_info):
+def match_info_formatting(df_match_info=df_match_info_combined):
     """
     """
 
@@ -22,20 +22,59 @@ def match_info_formatting(df_match_info):
     # New cols for TD Toss win/lose/unknown, TD bat/bowl first
 
     # Home or Away
-    df_match_info['td_home_club_bool'] = df_match_info['home_club'].map({'Thames Ditton CC':True})
-    df_match_info['td_home_club_bool'].fillna(value=False, inplace=True)
+    df_match_info['td_home_club'] = df_match_info['home_club'].map({'Thames Ditton CC':True})
+    df_match_info['td_home_club'] = df_match_info['td_home_club'].fillna(value=False)
 
-    df_match_info['td_team'] = df_match_info['home_team'].where(df_match_info['td_home_club_bool'] == True, df_match_info['away_team'])
+    # TD team playing in the match
+    df_match_info['td_team'] = df_match_info['home_team'].where(df_match_info['td_home_club'] == True, df_match_info['away_team'])
 
-    df_match_info['td_win'] =  df_match_info['winner'].map({'Thames Ditton CC':True})
-    df_match_info['td_win'].fillna(value=False, inplace=True)
+    # TD winners of the match
+    df_match_info['td_match_win'] =  df_match_info['winner'].map({'THAMES DITTON CC':True})
+    df_match_info['td_match_win'] = df_match_info['td_match_win'].fillna(value=False)
+
+    # TD win the toss
+    def win_toss(row):
+        if row['td_home_club'] == True:
+            if 'won' in str(row['home_toss']).lower():
+                td_toss_win = True
+            else:
+                td_toss_win = False
+        else:
+            if 'won' in str(row['away_toss']).lower():
+                td_toss_win = True
+            else:
+                td_toss_win = False
+        
+        return td_toss_win
+
+    df_match_info['td_toss_win'] = df_match_info.apply(lambda row : win_toss(row), axis=1)
+
+    df_match_info = df_match_info.drop(labels=['Unnamed: 0','Unnamed: 0.1','Unnamed: 0.1.1','Unnamed: 0.1.1.1'], axis=1)
 
     return df_match_info
 
 
+# %% Formatting for bowling
+
+# Figure out how to aggregate the overs properly
+
+def bowling_formatting():
+    """
+    """
+    pass
+
+
+# %% Formatting for batting
+
+def batting_formatting():
+    """
+    """
+    pass
+
+
 #%% Try out a grouping of runs by year
 
-def runs_per_year(df_bat, df_match_info, player_name):
+def runs_per_year(df_bat=df_bat_combined, df_match_info=df_match_info_combined, player_name=''):
     """
     """
 
@@ -45,9 +84,25 @@ def runs_per_year(df_bat, df_match_info, player_name):
     df_bat_p['date'] = pd.to_datetime(df_bat_p['date'], infer_datetime_format=True)
     df_bat_p['year'] = df_bat_p['date'].dt.year
 
-    runs_by_year = df_bat_p.groupby([df_bat_p['year'], df_bat_p['td_team']], as_index=False)[['td_team', 'runs_scored']].sum()
+    runs_by_year = df_bat_p.groupby([df_bat_p['year']], as_index=False)[['runs_scored']].sum()
 
     return df_bat_p, runs_by_year
 
 
-# %%
+# %% Matches played
+
+def number_of_matches_played(df_bat=df_bat_combined, player_name=''):
+    """
+    """
+
+    df_bat_p = df_bat[df_bat['player_name'] == player_name]
+
+    games_played = len(df_bat_p.match_id.unique())
+
+    return games_played
+
+
+
+
+
+
