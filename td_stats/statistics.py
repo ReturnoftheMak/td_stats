@@ -12,7 +12,7 @@ df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\tha
 
 # %% Formatting the date column
 
-def match_info_formatting(df_match_info=df_match_info_combined):
+def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_combined):
     """
     """
 
@@ -24,6 +24,47 @@ def match_info_formatting(df_match_info=df_match_info_combined):
     # Home or Away
     df_match_info['td_home_club'] = df_match_info['home_club'].map({'Thames Ditton CC':True})
     df_match_info['td_home_club'] = df_match_info['td_home_club'].fillna(value=False)
+
+    # Fill in the club info from team if blank
+    df_match_info['home_club'].replace('\xa0', None, inplace=True)
+    df_match_info['home_club'].fillna(df_match_info['home_team'])
+    df_match_info['away_club'].replace('\xa0', None, inplace=True)
+    df_match_info['away_club'].fillna(df_match_info['away_team'])
+
+    # TD batting first - may need to use the batting info to supplement unknown
+    inns = df_bat[df_bat['innings_name'] == 'Thames Ditton CC'][['match_id', 'innings_no']]
+    inns = inns.groupby('match_id').min()
+    inns['innings_no'] = inns['innings_no'].map({1:'batted_first', 2:'bowled_first'})
+    inns.columns = ['bat_bowl']
+    df_match_info = df_match_info.merge(inns, how='left', left_on='match_id', right_index=True)
+
+    def bat_first(row):
+        if row['td_home_club'] == True:
+            if 'bat' in str(row['home_toss']).lower():
+                td_bat_first = 'batted_first'
+            elif 'field' in str(row['home_toss']).lower():
+                td_bat_first = 'bowled_first'
+            elif 'bat' in str(row['away_toss']).lower():
+                td_bat_first = 'bowled_first'
+            elif 'field' in str(row['away_toss']).lower():
+                td_bat_first = 'batted_first'
+            else:
+                td_bat_first = row['bat_bowl']
+        else:
+            if 'bat' in str(row['away_toss']).lower():
+                td_bat_first = 'batted_first'
+            elif 'field' in str(row['away_toss']).lower():
+                td_bat_first = 'bowled_first'
+            elif 'bat' in str(row['home_toss']).lower():
+                td_bat_first = 'bowled_first'
+            elif 'field' in str(row['home_toss']).lower():
+                td_bat_first = 'batted_first'
+            else:
+                td_bat_first = row['bat_bowl']
+        
+        return td_bat_first
+    
+    df_match_info['td_bat_first'] = df_match_info.apply(lambda row : bat_first(row), axis=1)
 
     # TD team playing in the match
     df_match_info['td_team'] = df_match_info['home_team'].where(df_match_info['td_home_club'] == True, df_match_info['away_team'])
@@ -48,12 +89,12 @@ def match_info_formatting(df_match_info=df_match_info_combined):
                 td_toss_win = 'loss'
             else:
                 td_toss_win = 'unknown'
-        
+
         return td_toss_win
 
     df_match_info['td_toss_win'] = df_match_info.apply(lambda row : win_toss(row), axis=1)
 
-    df_match_info = df_match_info.drop(labels=['Unnamed: 0','Unnamed: 0.1','Unnamed: 0.1.1','Unnamed: 0.1.1.1'], axis=1)
+    df_match_info = df_match_info.drop(labels=['Unnamed: 0','Unnamed: 0.1','Unnamed: 0.1.1','Unnamed: 0.1.1.1', 'bat_bowl'], axis=1)
 
     return df_match_info
 
@@ -117,7 +158,9 @@ def number_of_matches_played(df_bat=df_bat_combined, player_name=''):
     return games_played
 
 
+# %% Analysis of the toss
 
+# 
 
 
 
