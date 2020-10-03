@@ -32,18 +32,22 @@ def match_info_formatting(df_match_info=df_match_info_combined):
     df_match_info['td_match_win'] =  df_match_info['winner'].map({'THAMES DITTON CC':True})
     df_match_info['td_match_win'] = df_match_info['td_match_win'].fillna(value=False)
 
-    # TD win the toss
+    # TD win the toss - add in unknown logic here, so not boolean
     def win_toss(row):
         if row['td_home_club'] == True:
             if 'won' in str(row['home_toss']).lower():
-                td_toss_win = True
+                td_toss_win = 'won'
+            elif 'won' in str(row['away_toss']).lower():
+                td_toss_win = 'loss'
             else:
-                td_toss_win = False
+                td_toss_win = 'unknown'
         else:
             if 'won' in str(row['away_toss']).lower():
-                td_toss_win = True
+                td_toss_win = 'won'
+            elif 'won' in str(row['home_toss']).lower():
+                td_toss_win = 'loss'
             else:
-                td_toss_win = False
+                td_toss_win = 'unknown'
         
         return td_toss_win
 
@@ -66,10 +70,21 @@ def bowling_formatting():
 
 # %% Formatting for batting
 
-def batting_formatting():
+def batting_formatting(df_bat):
     """
     """
-    pass
+
+    # Batsman has an innings
+    df_bat['innings_played'] = df_bat['fielding_dismissal'].map({'did not bat':False})
+    df_bat['innings_played'].fillna(True, inplace=True)
+    # Bat is dismissed
+    df_bat['is_dismissed'] = df_bat['innings_played'].where(df_bat['dismissal_method'] != 'not out')
+    df_bat['is_dismissed'].fillna(0, inplace=True)
+    df_bat['is_dismissed'] = df_bat['is_dismissed'].map({1:True, 0:False})
+
+    df_bat = df_bat.drop(labels=['Unnamed: 0','Unnamed: 0.1'], axis=1)
+
+    return df_bat
 
 
 #%% Try out a grouping of runs by year
