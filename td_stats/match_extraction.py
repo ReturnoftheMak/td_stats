@@ -244,21 +244,21 @@ def get_row_to_dict_bat(row, match_url, i):
     except:
         strike_rate = np.nan
     
-    cap = cells[0].find('img', class_='kcim')
+    cap = cells[0].findAll('img', class_='kcim')
+    captain=False
     if cap is not None:
-        if cells[0].find('img', class_='kcim')['alt'] == 'Captain':
-            captain = True
-        else:
-            captain = False
+        for img in cells[0].findAll('img', class_='kcim'):
+            if img['alt'] == 'Captain':
+                captain = True
     else:
         captain = False
 
-    keep = cells[0].find('img', class_='kcim')
+    keep = cells[0].findAll('img', class_='kcim')
+    wicketkeeper = False
     if keep is not None:
-        if cells[0].find('img', class_='kcim')['alt'] == 'Keeper':
-            wicketkeeper = True
-        else:
-            wicketkeeper = False
+        for img in cells[0].findAll('img', class_='kcim'):
+            if img['alt'] == 'Keeper':
+                wicketkeeper = True
     else:
         wicketkeeper = False
     
@@ -449,16 +449,16 @@ def get_match_data(soup_dict):
         # print(match_url)
         df_bat = extract_batting_innings(match_url, soup)
         df_list_batting.append(df_bat)
-        df_bowl = extract_bowling_innings(match_url, soup)
-        df_list_bowling.append(df_bowl)
-        df_match_info = extract_match_information(match_url, soup)
-        df_list_match_info.append(df_match_info)
+        #df_bowl = extract_bowling_innings(match_url, soup)
+        #df_list_bowling.append(df_bowl)
+        #df_match_info = extract_match_information(match_url, soup)
+        #df_list_match_info.append(df_match_info)
 
     df_bat_combined = pd.concat(df_list_batting)
-    df_bowl_combined = pd.concat(df_list_bowling)
-    df_match_info_combined = pd.concat(df_list_match_info)
+    #df_bowl_combined = pd.concat(df_list_bowling)
+    #df_match_info_combined = pd.concat(df_list_match_info)
 
-    return df_bat_combined, df_bowl_combined, df_match_info_combined
+    return df_bat_combined#, df_bowl_combined, df_match_info_combined
 
 
 # %%
