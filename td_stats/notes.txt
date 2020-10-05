@@ -35,4 +35,7 @@ Want to get down to a single run for adding new matches, should go like this:
 - append these to the csv for that given year
 - recreate the combined view from the separate csvs
 
+Need to resolve a captain/wicketkeeper issue in the data collection
+Try a findall rather than find in lines 247 and 256
 
+Think this works now, run the html for historical matches
