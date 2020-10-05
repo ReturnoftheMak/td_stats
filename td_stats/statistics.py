@@ -1,6 +1,7 @@
 # %% Package Imports
 
 import pandas as pd
+import numpy as np
 
 
 # %% Get the dfs loaded
@@ -10,10 +11,10 @@ df_bowl_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_di
 df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\match_info_all.csv')
 
 
-# %% Formatting the date column
+# %% Formatting the match info
 
 def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_combined):
-    """
+    """Create additional columns and format some of the data within existing
     """
 
     # Convert to timestamp
@@ -69,9 +70,33 @@ def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_co
     # TD team playing in the match
     df_match_info['td_team'] = df_match_info['home_team'].where(df_match_info['td_home_club'] == True, df_match_info['away_team'])
 
-    # TD winners of the match
-    df_match_info['td_match_win'] =  df_match_info['winner'].map({'THAMES DITTON CC':True})
-    df_match_info['td_match_win'] = df_match_info['td_match_win'].fillna(value=False)
+    # TD winners of the match - need to differentiate nr to draws
+    # Need to be able to infer a winner
+    def td_match_result(row):
+        if str(row['margin']).strip() == 'MATCH DRAWN':
+            result = 'draw'
+        elif row['winner'] == 'THAMES DITTON CC':
+            result = 'win'
+        elif type(row['winner']) is str and row['winner'] != 'THAMES DITTON CC':
+            result = 'loss'
+        elif type(row['winner']) is float and type(row['margin']) is str:
+            if 'RUNS' in row['margin'] and row['td_bat_first'] == 'batted_first':
+                result = 'win'
+            elif 'WICKET' in row['margin'] and row['td_bat_first'] == 'batted_first':
+                result = 'loss'
+            elif 'RUNS' in row['margin'] and row['td_bat_first'] == 'bowled_first':
+                result = 'loss'
+            elif 'WICKET' in row['margin'] and row['td_bat_first'] == 'bowled_first':
+                result = 'win'
+            else:
+                result = 'check_1'
+        elif type(row['winner']) is float and type(row['margin']) is float:
+            result = 'no result'
+        else:
+            result = 'check_2'
+        return result
+
+    df_match_info['td_match_win'] =  df_match_info.apply(lambda row : td_match_result(row), axis=1)
 
     # TD win the toss - add in unknown logic here, so not boolean
     def win_toss(row):
@@ -158,9 +183,71 @@ def number_of_matches_played(df_bat=df_bat_combined, player_name=''):
     return games_played
 
 
-# %% Analysis of the toss
+# %% Analysis of the captains
 
-# 
+# Most tosses won/lost in a row by captains
+# Do teams win more when winning the toss?
+
+def captain_win_loss_by_toss(df_match_info, df_bat, captain=''):
+    """Return some basic stats around the toss
+    """
+
+    cap = df_bat[(df_bat['captain'] == True) & (df_bat['innings_name'] == 'Thames Ditton CC')][['player_name', 'match_id']]
+    cap.columns = ['captain_name', 'match_id']
+    df_mi = df_match_info.merge(cap, how='left', on='match_id')
+    df_mi = df_mi[df_mi['captain_name'] == captain]
+
+    # Wins and losses by toss outcome
+    df_mi = df_mi[df_mi['td_match_win'].isin(['win', 'loss', 'draw'])]
+    df_mi['count'] = 1
+    cap_result = df_mi.pivot_table(index='td_toss_win', columns='td_match_win', values='count', aggfunc='sum', fill_value=0)
+    cap_result['total'] = cap_result.sum(axis=1) 
+    cap_result_perc = cap_result.div(cap_result.iloc[:,-1], axis=0)
+
+    return cap_result, cap_result_perc
+
+
+# %% Get streaks for tosses
+
+def longest_toss_streaks(df_match_info, df_bat):
+    """
+    """
+
+    cap = df_bat[(df_bat['captain'] == True) & (df_bat['innings_name'] == 'Thames Ditton CC')][['player_name', 'match_id']]
+    cap.columns = ['captain_name', 'match_id']
+    df_mi = df_match_info.merge(cap, how='inner', on='match_id')
+
+    # sort by captain and then date
+    df_mi = df_mi[df_mi['td_toss_win'] != 'unknown']
+    toss_streak = df_mi[['captain_name', 'date', 'td_team', 'td_toss_win']]
+    toss_streak.sort_values(['captain_name', 'date'], ascending=[True, True], inplace=True)
+    toss_streak['Count'] = toss_streak['td_toss_win'].map({'won':1, 'loss':0})
+
+    # test
+    # toss_streak['consecutive'] = toss_streak.Count.groupby((toss_streak.Count != toss_streak.Count.shift()).cumsum()).transform('size') * toss_streak.Count
+
+    def count_consecutive_items_n_cols(df, col_name_list, output_col):
+        """
+        """
+        cum_sum_list = [(df[col_name] != df[col_name].shift(1)).cumsum().tolist() for col_name in col_name_list]
+        df[output_col] = df.groupby(["_".join(map(str, x)) for x in zip(*cum_sum_list)]).cumcount() + 1
+        return df
+
+    # try this one next
+    toss_streak = count_consecutive_items_n_cols(toss_streak, ['captain_name', 'td_toss_win'], 'counts')
+
+    return toss_streak
+
+
+# %% Use the same logic in the streaks to figure out who is quickest
+#    to certain milestones
+
+# filter for anyone who has got to 1000 runs in total
+# then use the cumulative sum to work out in which match the player reached 1000
+# filter for games in which cumsum is > 1000 and then get minimum per player to get matches
+# then use a game count with another cumulative to find the games/innings taken to get there
+# Sort ascending and return list
+
 
 
 
