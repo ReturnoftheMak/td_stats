@@ -141,7 +141,13 @@ def batting_formatting(df_bat):
     """
 
     # Batsman has an innings
-    df_bat['innings_played'] = df_bat['fielding_dismissal'].map({'did not bat':False})
+    def null_inns(runs):
+        if np.isnan(runs) == True:
+            return False
+        else:
+            return np.nan
+
+    df_bat['innings_played'] = df_bat['runs_scored'].apply(lambda x : null_inns(x))
     df_bat['innings_played'].fillna(True, inplace=True)
     # Bat is dismissed
     df_bat['is_dismissed'] = df_bat['innings_played'].where(df_bat['dismissal_method'] != 'not out')
@@ -192,7 +198,7 @@ def captain_win_loss_by_toss(df_match_info, df_bat, captain=''):
     """Return some basic stats around the toss
     """
 
-    cap = df_bat[(df_bat['captain'] == True) & (df_bat['innings_name'] == 'Thames Ditton CC')][['player_name', 'match_id']]
+    cap = df_bat[(df_bat['captain'] == True) & (df_bat['innings_name'].str.contains('Thames Ditton CC'))][['player_name', 'match_id']]
     cap.columns = ['captain_name', 'match_id']
     df_mi = df_match_info.merge(cap, how='left', on='match_id')
     df_mi = df_mi[df_mi['captain_name'] == captain]
@@ -207,13 +213,23 @@ def captain_win_loss_by_toss(df_match_info, df_bat, captain=''):
     return cap_result, cap_result_perc
 
 
+# %% Helper function for cumulative sums by partition
+
+def count_consecutive_items_n_cols(df, col_name_list, output_col):
+        """
+        """
+        cum_sum_list = [(df[col_name] != df[col_name].shift(1)).cumsum().tolist() for col_name in col_name_list]
+        df[output_col] = df.groupby(["_".join(map(str, x)) for x in zip(*cum_sum_list)]).cumcount() + 1
+        return df
+
+
 # %% Get streaks for tosses
 
 def longest_toss_streaks(df_match_info, df_bat):
     """
     """
 
-    cap = df_bat[(df_bat['captain'] == True) & (df_bat['innings_name'] == 'Thames Ditton CC')][['player_name', 'match_id']]
+    cap = df_bat[(df_bat['captain'] == True) & (df_bat['innings_name'].str.contains('Thames Ditton CC'))][['player_name', 'match_id']]
     cap.columns = ['captain_name', 'match_id']
     df_mi = df_match_info.merge(cap, how='inner', on='match_id')
 
@@ -222,16 +238,6 @@ def longest_toss_streaks(df_match_info, df_bat):
     toss_streak = df_mi[['captain_name', 'date', 'td_team', 'td_toss_win']]
     toss_streak.sort_values(['captain_name', 'date'], ascending=[True, True], inplace=True)
     toss_streak['Count'] = toss_streak['td_toss_win'].map({'won':1, 'loss':0})
-
-    # test
-    # toss_streak['consecutive'] = toss_streak.Count.groupby((toss_streak.Count != toss_streak.Count.shift()).cumsum()).transform('size') * toss_streak.Count
-
-    def count_consecutive_items_n_cols(df, col_name_list, output_col):
-        """
-        """
-        cum_sum_list = [(df[col_name] != df[col_name].shift(1)).cumsum().tolist() for col_name in col_name_list]
-        df[output_col] = df.groupby(["_".join(map(str, x)) for x in zip(*cum_sum_list)]).cumcount() + 1
-        return df
 
     # try this one next
     toss_streak = count_consecutive_items_n_cols(toss_streak, ['captain_name', 'td_toss_win'], 'counts')
@@ -248,6 +254,28 @@ def longest_toss_streaks(df_match_info, df_bat):
 # then use a game count with another cumulative to find the games/innings taken to get there
 # Sort ascending and return list
 
+def innings_to_milestone_runs(df_bat, df_match_info, runs_milestone=1000):
+    """
+    """
 
+    inns_to_runs = df_bat[(df_bat['innings_played'] == True) & (df_bat['innings_name'].str.contains('Thames Ditton CC'))]
+    inns_to_runs = inns_to_runs.merge(df_match_info[['match_id', 'date']], how='left', on='match_id')
 
+    inns_to_runs.sort_values(['player_name', 'date'], ascending=[True, True], inplace=True)
 
+    inns_to_runs = count_consecutive_items_n_cols(inns_to_runs, ['player_name'], 'cumulative_inns')
+    inns_to_runs['cumulative_runs'] = inns_to_runs.groupby(['player_name'])['runs_scored'].apply(lambda x: x.cumsum())
+
+    milestone = inns_to_runs[inns_to_runs['cumulative_runs'] >= runs_milestone]
+    milestone = milestone.groupby(['player_name'])['cumulative_inns'].min().reset_index()
+    milestone.sort_values('cumulative_inns', ascending=True, inplace=True)
+
+    return milestone
+
+# Doesn't quite work with the innings thing?? Seems to have missed some
+# Find if there are any runs scored when the innings is false 
+
+# Now we've got all innings containing TD rather than exactly TD
+
+# Still Mike has 5 more innings than the data suggests, Jonners +2
+# Abandoned games it looks like - fixed, innings now match
