@@ -128,6 +128,9 @@ def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_co
 
 # Figure out how to aggregate the overs properly
 
+# Something like using floor divide by 1 and remainder 1 to split out?
+# can then keep one the same, convert the other by multiplying by (10/6) then add back together
+
 def bowling_formatting():
     """
     """
@@ -279,3 +282,9 @@ def innings_to_milestone_runs(df_bat, df_match_info, runs_milestone=1000):
 
 # Still Mike has 5 more innings than the data suggests, Jonners +2
 # Abandoned games it looks like - fixed, innings now match
+
+
+# %% Now do the same for bowling
+
+# Slightly more tricky, as we'll have to use the batting to get a cumulative count to know which match
+# is the one in which the milestone was reached, joining by match_id
