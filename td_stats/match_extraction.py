@@ -449,16 +449,16 @@ def get_match_data(soup_dict):
         # print(match_url)
         df_bat = extract_batting_innings(match_url, soup)
         df_list_batting.append(df_bat)
-        #df_bowl = extract_bowling_innings(match_url, soup)
-        #df_list_bowling.append(df_bowl)
-        #df_match_info = extract_match_information(match_url, soup)
-        #df_list_match_info.append(df_match_info)
+        df_bowl = extract_bowling_innings(match_url, soup)
+        df_list_bowling.append(df_bowl)
+        df_match_info = extract_match_information(match_url, soup)
+        df_list_match_info.append(df_match_info)
 
     df_bat_combined = pd.concat(df_list_batting)
-    #df_bowl_combined = pd.concat(df_list_bowling)
-    #df_match_info_combined = pd.concat(df_list_match_info)
+    df_bowl_combined = pd.concat(df_list_bowling)
+    df_match_info_combined = pd.concat(df_list_match_info)
 
-    return df_bat_combined#, df_bowl_combined, df_match_info_combined
+    return df_bat_combined, df_bowl_combined, df_match_info_combined
 
 
 # %%
@@ -466,6 +466,7 @@ def get_match_data(soup_dict):
 df_bat_20.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\batting_20.csv', mode='a', header=False)
 df_bowl_20.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\bowling_20.csv', mode='a', header=False)
 df_match_info_20.to_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\match_info_20.csv', mode='a', header=False)
+
 
 # %% Create new combined csvs
 

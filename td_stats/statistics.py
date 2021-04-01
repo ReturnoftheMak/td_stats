@@ -62,13 +62,15 @@ def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_co
                 td_bat_first = 'batted_first'
             else:
                 td_bat_first = row['bat_bowl']
-        
+
         return td_bat_first
-    
+
     df_match_info['td_bat_first'] = df_match_info.apply(lambda row : bat_first(row), axis=1)
 
     # TD team playing in the match
     df_match_info['td_team'] = df_match_info['home_team'].where(df_match_info['td_home_club'] == True, df_match_info['away_team'])
+
+    # Add in an opposition club and team, separate fields
 
     # TD winners of the match - need to differentiate nr to draws
     # Need to be able to infer a winner
@@ -131,10 +133,16 @@ def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_co
 # Something like using floor divide by 1 and remainder 1 to split out?
 # can then keep one the same, convert the other by multiplying by (10/6) then add back together
 
-def bowling_formatting():
+def bowling_formatting(df_bowl):
     """
     """
-    pass
+
+    df_bowl['overs_bowled'] = (df_bowl['overs_bowled'] // 1) + ((df_bowl['overs_bowled'] % 1) * (10/6))
+
+    df_bowl = df_bowl.drop(labels=['Unnamed: 0','Unnamed: 0.1'], axis=1)
+
+    return df_bowl
+
 
 
 # %% Formatting for batting
@@ -237,7 +245,7 @@ def longest_toss_streaks(df_match_info, df_bat):
     df_mi = df_match_info.merge(cap, how='inner', on='match_id')
 
     # sort by captain and then date
-    df_mi = df_mi[df_mi['td_toss_win'] != 'unknown']
+    #df_mi = df_mi[df_mi['td_toss_win'] != 'unknown']
     toss_streak = df_mi[['captain_name', 'date', 'td_team', 'td_toss_win']]
     toss_streak.sort_values(['captain_name', 'date'], ascending=[True, True], inplace=True)
     toss_streak['Count'] = toss_streak['td_toss_win'].map({'won':1, 'loss':0})
@@ -288,3 +296,42 @@ def innings_to_milestone_runs(df_bat, df_match_info, runs_milestone=1000):
 
 # Slightly more tricky, as we'll have to use the batting to get a cumulative count to know which match
 # is the one in which the milestone was reached, joining by match_id
+
+def matches_to_milestone_wickets(df_bowl, df_bat, df_match_info, wickets_milestone=50):
+    """
+    """
+
+    games_to_wickets = df_bat.merge(df_match_info[['match_id', 'date']], how='left', on='match_id')
+
+    games_to_wickets = games_to_wickets[games_to_wickets['innings_name'].str.contains('Thames Ditton CC')]
+
+    def bat_inns_number(inns_no):
+        if inns_no == 1:
+            bat_inns_no = 2
+        elif inns_no == 2:
+            bat_inns_no = 1
+        elif inns_no == 3:
+            bat_inns_no = 4
+        elif inns_no == 4:
+            bat_inns_no = 3
+        return bat_inns_no
+
+    df_bowl['bat_inns_no'] = df_bowl['innings_no'].apply(lambda x : bat_inns_number(x))
+
+    games_to_wickets = games_to_wickets.merge(df_bowl, how='left', left_on=['player_name', 'match_id', 'innings_no'], right_on=['player_name', 'match_id', 'bat_inns_no'])
+
+    games_to_wickets['wickets_taken'].fillna(0, inplace=True)
+    games_to_wickets.sort_values(['player_name', 'date'], ascending=[True, True], inplace=True)
+
+    games_to_wickets = count_consecutive_items_n_cols(games_to_wickets, ['player_name'], 'cumulative_games')
+    games_to_wickets['cumulative_wickets'] = games_to_wickets.groupby(['player_name'])['wickets_taken'].apply(lambda x: x.cumsum())
+
+    milestone = games_to_wickets[games_to_wickets['cumulative_wickets'] >= wickets_milestone]
+    milestone = milestone.groupby(['player_name'])['cumulative_games'].min().reset_index()
+    milestone.sort_values('cumulative_games', ascending=True, inplace=True)
+
+    return milestone
+
+
+# %% Most matches played together
+

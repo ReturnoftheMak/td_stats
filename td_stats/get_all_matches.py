@@ -42,7 +42,7 @@ def get_season_url_list(start_url, driver):
     Params:
         start_url (str): url from the match list on year view
         driver driver (splinter.driver.webdriver.chrome.WebDriver): Splinter webdriver object
-    
+
     Returns:
         list of url strings
     """
@@ -182,7 +182,7 @@ def get_soup_from_html(html_dict):
 
     for key, value in html_dict.items():
         soup_dict[key] = BeautifulSoup(value, 'html.parser')
-    
+
     return soup_dict
 
 
