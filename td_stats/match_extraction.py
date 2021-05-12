@@ -223,17 +223,17 @@ def get_row_to_dict_bat(row, match_url, i):
         runs_scored = int(cells[3].text)
     except:
         runs_scored = np.nan
-    
+
     try:
         balls_faced = int(cells[4].text)
     except:
         balls_faced = np.nan
-    
+
     try:
         fours_scored = int(cells[5].text)
     except:
         fours_scored = np.nan
-    
+
     try:
         sixes_scored = int(cells[6].text)
     except:
@@ -243,12 +243,12 @@ def get_row_to_dict_bat(row, match_url, i):
         strike_rate = float(cells[7].text)
     except:
         strike_rate = np.nan
-    
+
     cap = cells[0].findAll('img', class_='kcim')
     captain=False
     if cap is not None:
         for img in cells[0].findAll('img', class_='kcim'):
-            if img['alt'] == 'Captain':
+            if 'captain' in img['src']:
                 captain = True
     else:
         captain = False
@@ -257,11 +257,11 @@ def get_row_to_dict_bat(row, match_url, i):
     wicketkeeper = False
     if keep is not None:
         for img in cells[0].findAll('img', class_='kcim'):
-            if img['alt'] == 'Keeper':
+            if 'Keeper' in img['src']:
                 wicketkeeper = True
     else:
         wicketkeeper = False
-    
+
     match_id = match_url.split('/')[-1]
     batting_number = i+1
 
