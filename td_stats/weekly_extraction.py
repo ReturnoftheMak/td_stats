@@ -24,7 +24,7 @@ def update_stats():
     save_html(html_dict, html_path)
 
     soup_dict = get_soup_from_html(html_dict)
-    df_bat, df_bowl, df_match_info = get_match_data(html_dict)
+    df_bat, df_bowl, df_match_info = get_match_data(soup_dict)
 
     df_bat.to_csv(directory + r'\batting_' + str(season_id) + '.csv')
     df_bowl.to_csv(directory + r'\bowling_' + str(season_id) + '.csv')
@@ -40,7 +40,7 @@ def update_stats():
 
     df_bat_combined = batting_formatting(df_bat_combined)
     df_bowl_combined = bowling_formatting(df_bowl_combined)
-    df_match_info_combined = match_info_formatting(df_match_info_combined)
+    df_match_info_combined = match_info_formatting(df_match_info_combined, df_bat_combined)
 
     df_bat_combined.to_csv(directory + r'\processed_data\batting.csv')
     df_bowl_combined.to_csv(directory + r'\processed_data\bowling.csv')

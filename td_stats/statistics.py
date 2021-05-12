@@ -165,7 +165,7 @@ def batting_formatting(df_bat):
     df_bat['is_dismissed'].fillna(0, inplace=True)
     df_bat['is_dismissed'] = df_bat['is_dismissed'].map({1:True, 0:False})
 
-    df_bat = df_bat.drop(labels=['Unnamed: 0','Unnamed: 0.1'], axis=1)
+    # df_bat = df_bat.drop(labels=['Unnamed: 0','Unnamed: 0.1'], axis=1)
 
     return df_bat
 
