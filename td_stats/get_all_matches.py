@@ -12,8 +12,8 @@ base_url = r'https://thamesditton.play-cricket.com'
 
 start_url = r'https://thamesditton.play-cricket.com/Matches?tab=Result&selected_season_id='
 
-browser = Browser('chrome', headless=True)
-browser.visit(base_url)
+# browser = Browser('chrome', headless=True)
+# browser.visit(base_url)
 
 # %% HTML Retrieval using splinter and bs4
 
@@ -91,7 +91,7 @@ def get_all_pages(base_url, start_url, driver):
 
     for season_page in season_pages:
         all_pages += (get_page_urls(base_url, season_page, driver))
-    
+
     return all_pages
 
 
@@ -103,10 +103,10 @@ def get_match_urls(base_url, page_url, driver):
 
     soup = get_page_soup(page_url, driver)
 
-    tables = soup.findAll('table')
+    links = soup.findAll('a', class_='link-scorecard d-none d-md-inline-block rounded-circle')
 
-    if len(tables) > 0:
-        match_urls = [base_url+table.find('a')['href'] for table in tables]
+    if len(links) > 0:
+        match_urls = [base_url+link['href'] for link in links]
     else:
         match_urls = []
     return match_urls
@@ -171,7 +171,7 @@ def save_html(html_dict, filepath):
 def load_html(filepath):
     with open(filepath) as json_file:
         data = json.load(json_file)
-    return data 
+    return data
 
 # %% Now we want to create a soup object for each object
 

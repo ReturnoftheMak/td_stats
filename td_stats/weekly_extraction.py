@@ -10,8 +10,8 @@ from statistics import match_info_formatting, batting_formatting, bowling_format
 # %% Parameters
 
 base_url = r'https://thamesditton.play-cricket.com'
-season_id = 2021
-browser = Browser('chrome', headless=True)
+season_id = 222
+browser = Browser(headless=True)
 html_path = r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\html_2021.json'
 directory = r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data'
 
@@ -50,3 +50,5 @@ def update_stats():
 
 if __name__ == '__main__':
     update_stats()
+
+# %%

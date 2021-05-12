@@ -6,14 +6,14 @@ import numpy as np
 
 # %% Get the dfs loaded
 
-df_bat_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\batting_all.csv')
-df_bowl_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\bowling_all.csv')
-df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\match_info_all.csv')
+# df_bat_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\batting_all.csv')
+# df_bowl_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\bowling_all.csv')
+# df_match_info_combined = pd.read_csv(r'C:\Users\Mak\Documents\Python Scripts\thames_ditton_stats\td_stats\data\consolidated_files\match_info_all.csv')
 
 
 # %% Formatting the match info
 
-def match_info_formatting(df_match_info=df_match_info_combined, df_bat=df_bat_combined):
+def match_info_formatting(df_match_info, df_bat):
     """Create additional columns and format some of the data within existing
     """
 
@@ -172,7 +172,7 @@ def batting_formatting(df_bat):
 
 #%% Try out a grouping of runs by year
 
-def runs_per_year(df_bat=df_bat_combined, df_match_info=df_match_info_combined, player_name=''):
+def runs_per_year(df_bat, df_match_info, player_name=''):
     """
     """
 
@@ -189,7 +189,7 @@ def runs_per_year(df_bat=df_bat_combined, df_match_info=df_match_info_combined, 
 
 # %% Matches played
 
-def number_of_matches_played(df_bat=df_bat_combined, player_name=''):
+def number_of_matches_played(df_bat, player_name=''):
     """
     """
 
